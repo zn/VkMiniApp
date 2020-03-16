@@ -1,6 +1,9 @@
 ﻿using ApplicationCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("PostRepositoryTests")]
 
 namespace Infrastructure.Data
 {
