@@ -23,9 +23,28 @@ class App extends Component{
 	onStoryChange = (e) =>
 		this.setState({ activeStory: e.currentTarget.dataset.story })
 
-	componentDidMount(){
-		bridge.send('VKWebAppGetUserInfo', {})
-			.then(e => this.setState({ fetchedUser: e }));
+	async componentDidMount(){
+		await bridge.send('VKWebAppGetUserInfo', {})
+			.then(e => this.setState({ fetchedUser: e })); // null почему-то
+
+		await fetch('https://localhost:5001/users/update', {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				Id: this.state.fetchedUser.id,
+				FirstName: this.state.fetchedUser.first_name,
+				LastName: this.state.fetchedUser.last_name,
+				Sex: Boolean(this.state.fetchedUser.sex),
+				BirthDate: this.state.fetchedUser.bdate,
+				Photo100: this.state.fetchedUser.photo_100,
+				Photo200: this.state.fetchedUser.photo_200
+			})
+		})
+			.then(e => alert(e));
+		alert("after fetching")
 	}
 
 	render(){

@@ -15,6 +15,9 @@ namespace Infrastructure.Data.Config
 
             builder.Property(p => p.Content)
                 .HasMaxLength(3000);
+            builder.HasOne(p => p.Author)
+                .WithMany(a => a.Posts)
+                .HasForeignKey(p => p.AuthorVkId);
         }
     }
 }

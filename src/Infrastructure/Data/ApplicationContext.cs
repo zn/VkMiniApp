@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Infrastructure.Data
 {
-    class ApplicationContext : DbContext
+    public class ApplicationContext : DbContext
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options)
             :base(options)
@@ -16,6 +16,7 @@ namespace Infrastructure.Data
         }
 
         public DbSet<Post> Posts { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

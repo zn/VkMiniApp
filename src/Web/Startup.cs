@@ -5,7 +5,10 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using AutoMapper;
 using Infrastructure;
+using ApplicationCore.Interfaces;
+using Infrastructure.Data;
 
 namespace Web
 {
@@ -21,6 +24,13 @@ namespace Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAnyOrigin", policy => policy.AllowAnyOrigin());
+            });
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddAutoMapper(typeof(Startup));
             services.AddDbContext(Configuration.GetConnectionString("DefaultConnection"));
             services.AddControllersWithViews();
 
@@ -50,7 +60,7 @@ namespace Web
             app.UseSpaStaticFiles();
 
             app.UseRouting();
-
+            app.UseCors();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

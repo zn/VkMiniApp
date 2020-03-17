@@ -32,7 +32,7 @@ namespace PostRepositoryTests
                 Content = "Test123",
                 PublishDate = DateTime.Now
             };
-            await repository.Add(post);
+            await repository.Create(post);
 
             post = await repository.GetById(132);
             Assert.AreEqual(12345, post.AuthorVkId);
@@ -45,7 +45,7 @@ namespace PostRepositoryTests
             var post = await repository.GetById(1);
             Assert.AreEqual(false, post.IsDeleted);
             await repository.Delete(post);
-            
+
             post = await repository.GetById(1);
             Assert.AreEqual(true, post.IsDeleted);
         }
@@ -102,9 +102,9 @@ namespace PostRepositoryTests
                 PublishDate = DateTime.Now
             };
 
-            repository.Add(post1).Wait();
-            repository.Add(post2).Wait();
-            repository.Add(post3).Wait();
+            repository.Create(post1).Wait();
+            repository.Create(post2).Wait();
+            repository.Create(post3).Wait();
         }
     }
 }

@@ -1,5 +1,6 @@
-import React, {Component} from 'react'
-import {View, Panel, PanelHeader, Div} from '@vkontakte/vkui'
+import React, { Component } from 'react';
+import { View, Panel, PanelHeader, Div } from '@vkontakte/vkui';
+import Post from './Post';
 
 class FeedView extends Component{
     
@@ -8,15 +9,16 @@ class FeedView extends Component{
     }
 
     componentDidMount(){
-        fetch('https://localhost:5001/api/Home')
-        .then(result => {
-            return result.json()
-        })
-        .then(data=>{
-            this.setState({
-                elements: data.slice()
+        fetch('https://localhost:5001/posts/all')
+            .then(result => {
+                return result.json();
             })
-        })
+            .then(data=>{
+                this.setState({
+                    elements: data.slice()
+                })
+            })
+
     }
 
     render(){
@@ -25,7 +27,7 @@ class FeedView extends Component{
             <View id={id} activePanel="feed">
                 <Panel id="feed">
                     <PanelHeader>Лента</PanelHeader>
-                    {this.state.elements.map(elem=><Div key={elem}>{elem}</Div>)}
+                    {this.state.elements.map(elem => <Post key={elem.id} post={elem} />)}
                 </Panel>
             </View>
         )

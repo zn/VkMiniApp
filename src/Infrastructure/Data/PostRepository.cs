@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Entities;
+using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    class PostRepository : IPostRepository
+    public class PostRepository : IPostRepository
     {
         private readonly ApplicationContext context;
         public PostRepository(ApplicationContext context)
@@ -18,7 +19,7 @@ namespace Infrastructure.Data
             this.context = context;
         }
 
-        public async Task<Post> Add(Post post)
+        public async Task<Post> Create(Post post)
         {
             EntityEntry<Post> entry = context.Add(post);
             await context.SaveChangesAsync();
@@ -27,6 +28,12 @@ namespace Infrastructure.Data
 
         public async Task Delete(Post post)
         {
+            var postToDelete = await context.Posts.SingleOrDefaultAsync(p => p.Id == post.Id);
+            if(postToDelete == null || postToDelete.IsDeleted)
+            {
+                throw new PostNotFoundException(post.Id);
+            }
+
             post.IsDeleted = true;
             context.Update(post);
             await context.SaveChangesAsync();
@@ -34,12 +41,15 @@ namespace Infrastructure.Data
 
         public async Task<IReadOnlyList<Post>> GetAll()
         {
-            return (await context.Posts.ToListAsync()).AsReadOnly();
+            return (await context.Posts.Where(p => !p.IsDeleted)
+                                        .ToListAsync())
+                                        .AsReadOnly();
         }
 
         public async Task<Post> GetById(int id)
         {
-            return await context.Posts.SingleOrDefaultAsync(p => p.Id == id);
+            return await context.Posts.SingleOrDefaultAsync(p => p.Id == id) 
+                ?? throw new PostNotFoundException(id);
         }
 
         public async Task<IReadOnlyList<Post>> GetPostsByAuthor(int authorId)
@@ -51,6 +61,10 @@ namespace Infrastructure.Data
 
         public async Task<Post> Update(Post post)
         {
+            if (await context.Posts.AsNoTracking().SingleOrDefaultAsync(p => p.Id == post.Id) == null)
+            {
+                throw new PostNotFoundException(post.Id);
+            }
             post.IsEdited = true;
             context.Entry(post).State = EntityState.Modified;
             await context.SaveChangesAsync();
