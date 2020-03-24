@@ -15,7 +15,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "^3.0.1",
     "reactstrap": "^6.3.0",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.7.1"
   },
   "devDependencies": {
     "@vkontakte/vk-bridge": "^2.1.2",

@@ -3,6 +3,7 @@ using ApplicationCore.Entities;
 using ApplicationCore.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +20,16 @@ namespace Web.Controllers
     public class UserController:ControllerBase
     {
         private readonly IUserRepository repository;
+        private readonly ILogger<UserController> logger;
         private readonly IMapper mapper;
-        public UserController(IUserRepository repository, IMapper mapper)
+        public UserController(IUserRepository repository, IMapper mapper, ILogger<UserController> logger)
         {
             this.repository = repository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
-        [HttpGet("users/{id}")]
+        [HttpGet("user/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             try
@@ -40,7 +43,7 @@ namespace Web.Controllers
             }
         }
 
-        [HttpPost("users/update")]
+        [HttpPost("user/update")]
         public async Task<IActionResult> UpdateInfo(UpdateUserInfoViewModel model)
         {
             try
@@ -49,9 +52,9 @@ namespace Web.Controllers
                 {
                     var user = mapper.Map<User>(model);
                     var result = await repository.Update(user);
+                    logger.LogInformation("Result: " + result.ToString());
                     return Ok(new { newUser = result == UserUpdateResult.Created });
                 }
-                ModelState.AddModelError("", Thread.CurrentThread.CurrentCulture.DisplayName);
                 return BadRequest(model);
             }
             catch (ArgumentException ex)

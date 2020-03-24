@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Epic, Tabbar, TabbarItem} from '@vkontakte/vkui'
+import {Epic, Tabbar, TabbarItem, Div} from '@vkontakte/vkui'
 import FeedView from './components/FeedView'
 import SearchView from './components/SearchView'
 import CreateView from './components/CreateView'
@@ -15,40 +15,54 @@ import Icon28Profile from '@vkontakte/icons/dist/28/profile';
 import '@vkontakte/vkui/dist/vkui.css';
 
 class App extends Component{
-	state = {
+    state = {
 		activeStory: 'feed',
-		fetchedUser: null
+		fetchedUser: null,
+        isNewUser: false
 	}
 
 	onStoryChange = (e) =>
 		this.setState({ activeStory: e.currentTarget.dataset.story })
 
-	async componentDidMount(){
-		await bridge.send('VKWebAppGetUserInfo', {})
-			.then(e => this.setState({ fetchedUser: e })); // null почему-то
-
-		await fetch('https://localhost:5001/users/update', {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				Id: this.state.fetchedUser.id,
-				FirstName: this.state.fetchedUser.first_name,
-				LastName: this.state.fetchedUser.last_name,
-				Sex: Boolean(this.state.fetchedUser.sex),
-				BirthDate: this.state.fetchedUser.bdate,
-				Photo100: this.state.fetchedUser.photo_100,
-				Photo200: this.state.fetchedUser.photo_200
-			})
-		})
-			.then(e => alert(e));
-		alert("after fetching")
+    componentDidMount() {
+        bridge.send('VKWebAppGetUserInfo', {})
+            .then(e => this.updateUserInfo(e))
+            .catch(error => console.log(error));
 	}
 
-	render(){
-		return(
+    async updateUserInfo(fetchedUser) {
+        this.setState({ fetchedUser: fetchedUser });
+        console.log("in updateUserInfo");
+        alert(fetchedUser.id)
+        try {
+            const response = await fetch('https://localhost:5001/user/update', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    Id: fetchedUser.id,
+                    FirstName: fetchedUser.first_name,
+                    LastName: fetchedUser.last_name,
+                    Sex: Boolean(fetchedUser.sex),
+                    BirthDate: fetchedUser.bdate,
+                    Photo100: fetchedUser.photo_100,
+                    Photo200: fetchedUser.photo_200
+                })
+            });
+            const data = await response.json();
+            console.log("fetched data:", data);
+            alert(data.newUser);
+            this.setState({ isNewUser: data.newUser });
+        } catch (error) {
+            alert("ERROR: " + error);
+        }
+    }
+
+    render() {
+        const showBanner = this.state.isNewUser;
+        return (
 			<Epic activeStory={this.state.activeStory} tabbar={
 				<Tabbar>
 					<TabbarItem
@@ -77,14 +91,15 @@ class App extends Component{
 						text="Профиль"
 					><Icon28Profile /></TabbarItem>
 				</Tabbar>
-			}>
+            }>
+                {showBanner && <Div>Hello new user!</Div>} 
 				<FeedView id="feed"/>
 				<SearchView id="search"/>
 				<CreateView id="create" />
 				<ProfileView id="profile" fetchedUser={this.state.fetchedUser}/>
 			</Epic>
 		)
-	}
+    }
 }
 
 export default App;

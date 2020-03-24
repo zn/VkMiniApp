@@ -60,7 +60,7 @@ namespace Web
             app.UseSpaStaticFiles();
 
             app.UseRouting();
-            app.UseCors();
+            app.UseCors("AllowAnyOrigin");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

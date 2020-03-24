@@ -13,7 +13,6 @@ using Web.ViewModels;
 namespace Web.Controllers
 {
     [ApiController]
-    [EnableCors("AllowAnyOrigin")]
     public class PostsController : ControllerBase
     {
         private readonly IPostRepository repository;
