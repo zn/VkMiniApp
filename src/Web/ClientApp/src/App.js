@@ -32,10 +32,8 @@ class App extends Component{
 
     async updateUserInfo(fetchedUser) {
         this.setState({ fetchedUser: fetchedUser });
-        console.log("in updateUserInfo");
-        alert(fetchedUser.id)
         try {
-            const response = await fetch('https://localhost:5001/user/update', {
+            const response = await fetch('/user/update', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -50,7 +48,8 @@ class App extends Component{
                     Photo100: fetchedUser.photo_100,
                     Photo200: fetchedUser.photo_200
                 })
-            });
+            })
+                .catch(err => alert(err));
             const data = await response.json();
             console.log("fetched data:", data);
             alert(data.newUser);

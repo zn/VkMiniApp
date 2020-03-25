@@ -26,7 +26,11 @@ namespace Web
         {
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAnyOrigin", policy => policy.AllowAnyOrigin());
+                options.AddPolicy("AllowAnyOrigin", policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyHeader();
+                });
             });
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -60,7 +64,7 @@ namespace Web
             app.UseSpaStaticFiles();
 
             app.UseRouting();
-            app.UseCors("AllowAnyOrigin");
+            //app.UseCors("AllowAnyOrigin");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -74,8 +78,8 @@ namespace Web
 
                 if (env.IsDevelopment())
                 {
-                    //spa.UseReactDevelopmentServer(npmScript: "start");
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
                 }
             });
         }
