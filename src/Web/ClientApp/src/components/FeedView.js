@@ -9,7 +9,7 @@ class FeedView extends Component{
     }
 
     componentDidMount(){
-        fetch('/posts/all')
+        fetch('https://localhost:5001/posts/all')
             .then(result => {
                 return result.json();
             })

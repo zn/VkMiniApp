@@ -25,38 +25,52 @@ class App extends Component{
 		this.setState({ activeStory: e.currentTarget.dataset.story })
 
     componentDidMount() {
+        // fetch("https://localhost:5001/users",{
+        //     method:'PUT',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         Id: 222222,
+        //         FirstName: "fetchedUser.first_name",
+        //         LastName: "fetchedUser.last_name",
+        //         Sex: Boolean(1),
+        //         BirthDate: "10.2.2000",
+        //         Photo100: "fetchedUser.photo_100",
+        //         Photo200: "fetchedUser.photo_200"
+        //     })
+        // })
+        // .then(async resp=>console.log(await resp.json()));
+
         bridge.send('VKWebAppGetUserInfo', {})
-            .then(e => this.updateUserInfo(e))
-            .catch(error => console.log(error));
+            .then(userInfo => this.setState({ fetchedUser:userInfo }))
+            .then(_ => this.updateUserInfo());
 	}
 
-    async updateUserInfo(fetchedUser) {
-        this.setState({ fetchedUser: fetchedUser });
-        try {
-            const response = await fetch('/user/update', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    Id: fetchedUser.id,
-                    FirstName: fetchedUser.first_name,
-                    LastName: fetchedUser.last_name,
-                    Sex: Boolean(fetchedUser.sex),
-                    BirthDate: fetchedUser.bdate,
-                    Photo100: fetchedUser.photo_100,
-                    Photo200: fetchedUser.photo_200
-                })
+    updateUserInfo() {
+        const fetchedUser = this.state.fetchedUser;
+        
+        fetch('https://localhost:5001/users', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                Id: fetchedUser.id,
+                FirstName: fetchedUser.first_name,
+                LastName: fetchedUser.last_name,
+                Sex: Boolean(fetchedUser.sex),
+                BirthDate: fetchedUser.bdate,
+                Photo100: fetchedUser.photo_100,
+                Photo200: fetchedUser.photo_200
             })
-                .catch(err => alert(err));
-            const data = await response.json();
-            console.log("fetched data:", data);
-            alert(data.newUser);
+        })
+        .then(async result => {
+            const data = await result.json();
             this.setState({ isNewUser: data.newUser });
-        } catch (error) {
-            alert("ERROR: " + error);
-        }
+        });
     }
 
     render() {
@@ -92,7 +106,7 @@ class App extends Component{
 				</Tabbar>
             }>
                 {showBanner && <Div>Hello new user!</Div>} 
-				<FeedView id="feed"/>
+				<FeedView id="feed2"/>
 				<SearchView id="search"/>
 				<CreateView id="create" />
 				<ProfileView id="profile" fetchedUser={this.state.fetchedUser}/>

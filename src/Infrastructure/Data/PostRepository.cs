@@ -31,7 +31,7 @@ namespace Infrastructure.Data
             var postToDelete = await context.Posts.SingleOrDefaultAsync(p => p.Id == post.Id);
             if(postToDelete == null || postToDelete.IsDeleted)
             {
-                throw new PostNotFoundException(post.Id);
+                throw new NotFoundException(post.Id);
             }
 
             post.IsDeleted = true;
@@ -49,7 +49,7 @@ namespace Infrastructure.Data
         public async Task<Post> GetById(int id)
         {
             return await context.Posts.SingleOrDefaultAsync(p => p.Id == id) 
-                ?? throw new PostNotFoundException(id);
+                ?? throw new NotFoundException(id);
         }
 
         public async Task<IReadOnlyList<Post>> GetPostsByAuthor(int authorId)
@@ -63,7 +63,7 @@ namespace Infrastructure.Data
         {
             if (await context.Posts.AsNoTracking().SingleOrDefaultAsync(p => p.Id == post.Id) == null)
             {
-                throw new PostNotFoundException(post.Id);
+                throw new NotFoundException(post.Id);
             }
             post.IsEdited = true;
             context.Entry(post).State = EntityState.Modified;

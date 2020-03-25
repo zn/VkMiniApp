@@ -1,10 +1,8 @@
 ﻿using ApplicationCore;
 using ApplicationCore.Entities;
+using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Data
@@ -22,7 +20,7 @@ namespace Infrastructure.Data
             var user = await context.Users.SingleOrDefaultAsync(u => u.VkontakteId == id);
             if(user == null)
             {
-                throw new ArgumentException("User not found");
+                throw new NotFoundException(id);
             }
             await context.Entry(user).Collection(u => u.Posts).LoadAsync();
             return user;

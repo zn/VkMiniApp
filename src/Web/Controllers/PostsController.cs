@@ -13,6 +13,7 @@ using Web.ViewModels;
 namespace Web.Controllers
 {
     [ApiController]
+    [Route("[controller]")]
     public class PostsController : ControllerBase
     {
         private readonly IPostRepository repository;
@@ -23,43 +24,28 @@ namespace Web.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("posts/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            try
-            {
-                var post = await repository.GetById(id);
-                return Ok(post);
-            }
-            catch(PostNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var post = await repository.GetById(id);
+            return Ok(post);
         }
 
-        [HttpGet("posts/author/{id}")]
-        public async Task<IActionResult> GetAuthorPosts(int id)
-        {
-            try
-            {
-                var posts = await repository.GetPostsByAuthor(id);
-                return Ok(posts);
-            }
-            catch (PostNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-        }
-
-        [HttpGet("posts/all")]
+        [HttpGet()]
         public async Task<IActionResult> All()
         {
             var items = await repository.GetAll();
             return new JsonResult(items);
         }
 
-        [HttpPost("posts/create")]
+        [HttpGet("author/{id}")]
+        public async Task<IActionResult> GetAuthorPosts(int id)
+        {
+            var posts = await repository.GetPostsByAuthor(id);
+            return Ok(posts);
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreatePostViewModel model)
         {
             if (ModelState.IsValid)
@@ -71,38 +57,24 @@ namespace Web.Controllers
             return BadRequest(model);
         }
 
-        [HttpPost("posts/update")]
+        [HttpPut]
         public async Task<IActionResult> Update([FromBody] UpdatePostViewModel model)
         {
             if (ModelState.IsValid)
             {
-                try
-                {
-                    var post = mapper.Map<Post>(model);
-                    post = await repository.Update(post);
-                    return Ok(post);
-                }
-                catch (PostNotFoundException ex)
-                {
-                    return BadRequest(ex.Message);
-                }
+                var post = mapper.Map<Post>(model);
+                post = await repository.Update(post);
+                return Ok(post);
             }
             return BadRequest(ModelState);
         }
 
-        [HttpPost("posts/delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                var post = await repository.GetById(id);
-                await repository.Delete(post);
-                return Ok();
-            }
-            catch (PostNotFoundException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var post = await repository.GetById(id);
+            await repository.Delete(post);
+            return Ok();
         }
     }
 }

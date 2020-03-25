@@ -9,6 +9,7 @@ using AutoMapper;
 using Infrastructure;
 using ApplicationCore.Interfaces;
 using Infrastructure.Data;
+using Web.Filters;
 
 namespace Web
 {
@@ -26,23 +27,27 @@ namespace Web
         {
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAnyOrigin", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
                     policy.AllowAnyOrigin();
                     policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
                 });
             });
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddAutoMapper(typeof(Startup));
+
             services.AddDbContext(Configuration.GetConnectionString("DefaultConnection"));
-            services.AddControllersWithViews();
+
+            services.AddControllers(options => 
+                options.Filters.Add(new NotFoundExceptionFilter()));
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+            //services.AddSpaStaticFiles(configuration =>
+            //{
+            //    configuration.RootPath = "ClientApp/build";
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,29 +64,27 @@ namespace Web
                 app.UseHsts();
             }
 
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            //app.UseSpaStaticFiles();
 
             app.UseRouting();
-            //app.UseCors("AllowAnyOrigin");
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
+            //app.UseSpa(spa =>
+            //{
+            //    spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                    //spa.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
-                }
-            });
+            //    if (env.IsDevelopment())
+            //    {
+            //        //spa.UseReactDevelopmentServer(npmScript: "start");
+            //        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
+            //    }
+            //});
         }
     }
 }

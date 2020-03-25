@@ -7,7 +7,7 @@ namespace UserControllerTests
 {
     public class Tests
     {
-        UserController controller;
+        UsersController controller;
         [SetUp]
         public void Setup()
         {
