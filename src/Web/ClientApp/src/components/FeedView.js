@@ -9,10 +9,8 @@ class FeedView extends Component{
     }
 
     componentDidMount(){
-        fetch('https://localhost:5001/posts/all')
-            .then(result => {
-                return result.json();
-            })
+        fetch('/posts')
+            .then(result => result.json())
             .then(data=>{
                 this.setState({
                     elements: data.slice()

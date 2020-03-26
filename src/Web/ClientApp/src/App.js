@@ -4,6 +4,7 @@ import FeedView from './components/FeedView'
 import SearchView from './components/SearchView'
 import CreateView from './components/CreateView'
 import ProfileView from './components/ProfileView'
+import NewUserScreen from './components/NewUserScreen'
 
 import bridge from '@vkontakte/vk-bridge';
 
@@ -24,57 +25,56 @@ class App extends Component{
 	onStoryChange = (e) =>
 		this.setState({ activeStory: e.currentTarget.dataset.story })
 
-    componentDidMount() {
-        // fetch("https://localhost:5001/users",{
-        //     method:'PUT',
-        //     headers: {
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         Id: 222222,
-        //         FirstName: "fetchedUser.first_name",
-        //         LastName: "fetchedUser.last_name",
-        //         Sex: Boolean(1),
-        //         BirthDate: "10.2.2000",
-        //         Photo100: "fetchedUser.photo_100",
-        //         Photo200: "fetchedUser.photo_200"
-        //     })
-        // })
-        // .then(async resp=>console.log(await resp.json()));
+    onStartPageButtonClick = (e) =>
+        this.setState({ activeStory:'feed' });
 
-        bridge.send('VKWebAppGetUserInfo', {})
-            .then(userInfo => this.setState({ fetchedUser:userInfo }))
-            .then(_ => this.updateUserInfo());
+    componentDidMount() {
+        this.updateUserInfo({
+            id:239588023,
+            first_name:"Alexander",
+            last_name:"Svistunov",
+            bdate:"10.2.2000",
+            sex:1,
+            photo_100:"https://sun9-29.userapi.com/c855332/v855332558/3c011/HNSmsOPKg4U.jpg?ava=1",
+            photo_200:"https://sun9-3.userapi.com/c855332/v855332558/3c010/YylbwN0d5M0.jpg?ava=1"
+        })
+        bridge.sendPromise('VKWebAppGetUserInfo')
+            .then(res => this.updateUserInfo(res));
 	}
 
-    updateUserInfo() {
-        const fetchedUser = this.state.fetchedUser;
-        
-        fetch('https://localhost:5001/users', {
+    updateUserInfo(userInfo) {
+        this.setState({fetchedUser:userInfo});
+        fetch('/users', {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                Id: fetchedUser.id,
-                FirstName: fetchedUser.first_name,
-                LastName: fetchedUser.last_name,
-                Sex: Boolean(fetchedUser.sex),
-                BirthDate: fetchedUser.bdate,
-                Photo100: fetchedUser.photo_100,
-                Photo200: fetchedUser.photo_200
+                Id: userInfo.id,
+                FirstName: userInfo.first_name,
+                LastName: userInfo.last_name,
+                Sex: Boolean(userInfo.sex),
+                BirthDate: userInfo.bdate,
+                Photo100: userInfo.photo_100,
+                Photo200: userInfo.photo_200
             })
         })
-        .then(async result => {
-            const data = await result.json();
-            this.setState({ isNewUser: data.newUser });
-        });
+        .then(res=>res.json())
+        .then(parsedJSON =>{
+            if(parsedJSON.isNewUser){
+                this.setState({
+                    isNewUser: parsedJSON.isNewUser,
+                    activeStory:"newUserScreen"
+                });
+            }
+            console.log("parsed json is: ", parsedJSON);
+        })
+        .catch(err=>console.log(err));
     }
 
     render() {
-        const showBanner = this.state.isNewUser;
+        const isNewUser = this.state.isNewUser;
         return (
 			<Epic activeStory={this.state.activeStory} tabbar={
 				<Tabbar>
@@ -105,8 +105,10 @@ class App extends Component{
 					><Icon28Profile /></TabbarItem>
 				</Tabbar>
             }>
-                {showBanner && <Div>Hello new user!</Div>} 
-				<FeedView id="feed2"/>
+                {isNewUser && 
+                    <NewUserScreen id="newUserScreen" first_name={this.state.fetchedUser.first_name} 
+                        onClick={()=>this.onStartPageButtonClick()}/>}
+				<FeedView id="feed"/>
 				<SearchView id="search"/>
 				<CreateView id="create" />
 				<ProfileView id="profile" fetchedUser={this.state.fetchedUser}/>

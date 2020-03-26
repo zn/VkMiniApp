@@ -42,17 +42,12 @@ namespace Web
 
             services.AddControllers(options => 
                 options.Filters.Add(new NotFoundExceptionFilter()));
-
-            // In production, the React files will be served from this directory
-            //services.AddSpaStaticFiles(configuration =>
-            //{
-            //    configuration.RootPath = "ClientApp/build";
-            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("AllowAll");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -60,31 +55,17 @@ namespace Web
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseCors("AllowAll");
-            app.UseHttpsRedirection();
+            app.UseMiddleware<RequestLoggingMiddleware>();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
-            //app.UseSpaStaticFiles();
 
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            //app.UseSpa(spa =>
-            //{
-            //    spa.Options.SourcePath = "ClientApp";
-
-            //    if (env.IsDevelopment())
-            //    {
-            //        //spa.UseReactDevelopmentServer(npmScript: "start");
-            //        spa.UseProxyToSpaDevelopmentServer("http://localhost:3000/");
-            //    }
-            //});
         }
     }
 }
