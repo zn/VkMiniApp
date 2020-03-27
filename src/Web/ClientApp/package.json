@@ -2,7 +2,7 @@
   "name": "web",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://3e1863fa.ngrok.io",
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@vkontakte/icons": "^1.18.2",
     "bootstrap": "^4.4.1",

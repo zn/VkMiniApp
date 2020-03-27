@@ -42,6 +42,8 @@ namespace Infrastructure.Data
         public async Task<IReadOnlyList<Post>> GetAll()
         {
             return (await context.Posts.Where(p => !p.IsDeleted)
+                                        .Include(p => p.Author)
+                                        .AsNoTracking()
                                         .ToListAsync())
                                         .AsReadOnly();
         }

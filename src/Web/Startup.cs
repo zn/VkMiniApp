@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,8 +41,9 @@ namespace Web
 
             services.AddDbContext(Configuration.GetConnectionString("DefaultConnection"));
 
-            services.AddControllers(options => 
-                options.Filters.Add(new NotFoundExceptionFilter()));
+            services.AddControllers(options =>
+                options.Filters.Add(new NotFoundExceptionFilter()))
+                .AddNewtonsoftJson(options=>options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
