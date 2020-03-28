@@ -41,7 +41,7 @@ namespace Web.Controllers
         [HttpGet("author/{id}")]
         public async Task<IActionResult> GetAuthorPosts(int id)
         {
-            //var posts = await repository.GetPostsByAuthor(id);
+            var posts = await repository.GetPostsByAuthor(id);
             return Ok(null);
         }
 

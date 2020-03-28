@@ -11,7 +11,7 @@ namespace Infrastructure.Data
             var query = inputQuery;
             if (specification.Criteria != null)
             {
-                query.Where(specification.Criteria);
+                query = query.Where(specification.Criteria);
             }
 
             query = specification.Includes.Aggregate(query,
@@ -19,13 +19,13 @@ namespace Infrastructure.Data
 
             if(specification.OrderBy != null)
             {
-                query.OrderBy(specification.OrderBy);
+                query = query.OrderBy(specification.OrderBy);
             }
 
             if (specification.IsPagingEnabled)
             {
-                query.Skip(specification.Skip)
-                    .Take(specification.Take);
+                query = query.Skip(specification.Skip)
+                             .Take(specification.Take);
             }
             return query;
         }

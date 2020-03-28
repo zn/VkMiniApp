@@ -11,6 +11,7 @@ namespace ApplicationCore.Interfaces
         Task<Post> GetById(int id);
         Task<IReadOnlyList<Post>> GetAll();
         Task<IReadOnlyList<Post>> GetAll(ISpecification<Post> spec);
+        Task<IReadOnlyList<Post>> GetPostsByAuthor(int id);
         Task<Post> Create(Post post);
         Task<Post> Update(Post post);
         Task Delete(Post post);

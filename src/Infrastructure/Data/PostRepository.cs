@@ -27,15 +27,9 @@ namespace Infrastructure.Data
 
         public async Task<IReadOnlyList<Post>> GetAll()
         {
-            return await SpecificationEvaluator<Post>.GetQuery(context.Posts.AsQueryable(), new FeedSpecification(0, 1))
-                .AsNoTracking()
-                .ToListAsync();
-
-            return (await context.Posts.Where(p => !p.IsDeleted)
-                                        .Include(p => p.Author)
-                                        .AsNoTracking()
-                                        .ToListAsync())
-                                        .AsReadOnly();
+            return await SpecificationEvaluator<Post>.GetQuery(context.Posts.AsQueryable(), new FeedSpecification())
+                            .AsNoTracking()
+                            .ToListAsync();
         }
 
         public async Task<IReadOnlyList<Post>> GetAll(ISpecification<Post> spec)
@@ -43,6 +37,11 @@ namespace Infrastructure.Data
             return await SpecificationEvaluator<Post>.GetQuery(context.Posts.AsQueryable(), spec)
                             .AsNoTracking()
                             .ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<Post>> GetPostsByAuthor(int id)
+        {
+            return null;
         }
 
         public async Task<Post> Create(Post post)
