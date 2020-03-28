@@ -8,9 +8,9 @@ namespace ApplicationCore.Interfaces
 {
     public interface IPostRepository
     {
-        Task<IReadOnlyList<Post>> GetAll();
         Task<Post> GetById(int id);
-        Task<IReadOnlyList<Post>> GetPostsByAuthor(int authorId);
+        Task<IReadOnlyList<Post>> GetAll();
+        Task<IReadOnlyList<Post>> GetAll(ISpecification<Post> spec);
         Task<Post> Create(Post post);
         Task<Post> Update(Post post);
         Task Delete(Post post);

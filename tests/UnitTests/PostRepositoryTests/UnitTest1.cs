@@ -66,15 +66,6 @@ namespace PostRepositoryTests
             Assert.AreEqual(true, post.IsEdited);
         }
 
-        [Test]
-        public async Task GetByAuthorTest()
-        {
-            var authorPosts = await repository.GetPostsByAuthor(12345);
-            Assert.AreEqual(2, authorPosts.Count);
-            Assert.IsTrue(authorPosts[0].Id == 1);
-            Assert.IsTrue(authorPosts[1].Id == 2);
-        }
-
         private void addCouplePosts()
         {
             var post1 = new Post
