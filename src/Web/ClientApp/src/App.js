@@ -68,7 +68,6 @@ class App extends Component{
                     activeStory:"newUserScreen"
                 });
             }
-            console.log("parsed json is: ", parsedJSON);
         })
         .catch(err=>console.log(err));
     }
@@ -107,10 +106,11 @@ class App extends Component{
             }>
                 {isNewUser && 
                     <NewUserScreen id="newUserScreen" first_name={this.state.fetchedUser.first_name} 
-                        onClick={()=>this.onStartPageButtonClick()}/>}
+                        onClick={this.onStartPageButtonClick.bind(this)}/>}
 				<FeedView id="feed"/>
 				<SearchView id="search"/>
-				<CreateView id="create" />
+                <CreateView id="create" fetchedUserId={this.state.fetchedUser != null ? 
+                                                                    this.state.fetchedUser.id : null}/>
 				<ProfileView id="profile" fetchedUser={this.state.fetchedUser}/>
 			</Epic>
 		)

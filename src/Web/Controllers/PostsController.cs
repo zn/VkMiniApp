@@ -3,11 +3,16 @@ using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Config;
+using Web.Filters;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -18,10 +23,12 @@ namespace Web.Controllers
     {
         private readonly IPostRepository repository;
         private readonly IMapper mapper;
-        public PostsController(IPostRepository repository, IMapper mapper)
+        private readonly AttachmentsConfig config;
+        public PostsController(IPostRepository repository, IMapper mapper, IOptions<AttachmentsConfig> config)
         {
             this.repository = repository;
             this.mapper = mapper;
+            this.config = config.Value;
         }
 
         [HttpGet("{id}")]
@@ -32,9 +39,9 @@ namespace Web.Controllers
         }
 
         [HttpGet()]
-        public async Task<IActionResult> All()
+        public async Task<IActionResult> All(int page = 1)
         {
-            var items = await repository.GetAll();
+            var items = await repository.GetPostsForPage(page);
             return new JsonResult(items);
         }
 
@@ -42,23 +49,28 @@ namespace Web.Controllers
         public async Task<IActionResult> GetAuthorPosts(int id)
         {
             var posts = await repository.GetPostsByAuthor(id);
-            return Ok(null);
+            return Ok(posts);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreatePostViewModel model)
+        [ValidateAttachments]
+        public async Task<IActionResult> Post([FromForm] CreatePostViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var post = mapper.Map<Post>(model);
                 post = await repository.Create(post);
+                if (model.Attachments != null)
+                {
+                    await repository.AddAttachments(post.Id, saveFiles(model.Attachments));
+                }
                 return Ok(post);
             }
             return BadRequest(model);
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdatePostViewModel model)
+        public async Task<IActionResult> Put([FromBody] UpdatePostViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -75,6 +87,34 @@ namespace Web.Controllers
             var post = await repository.GetById(id);
             await repository.Delete(post);
             return Ok();
+        }
+
+        private List<string> saveFiles(List<IFormFile> files)
+        {
+            List<string> paths = new List<string>(files.Count);
+            Task[] tasks = new Task[files.Count];
+
+            if (!Directory.Exists(config.Directory))
+                Directory.CreateDirectory(config.Directory);
+
+            for (int i = 0; i < files.Count; i++)
+            {
+                var task = Task.Run(() =>
+                {
+                    IFormFile file = files[i];
+                    string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string pathToFile = Path.Combine(config.Directory, filename);
+                    using (var fileStream = System.IO.File.Create(pathToFile))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                    paths.Add(pathToFile);
+                });
+                tasks[i] = task;
+            }
+
+            Task.WaitAll(tasks);
+            return paths;
         }
     }
 }

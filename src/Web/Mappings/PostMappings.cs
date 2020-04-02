@@ -13,6 +13,9 @@ namespace Web.Mappings
         public PostMappings()
         {
             CreateMap<CreatePostViewModel, Post>()
+                .ForMember(vm => vm.AuthorVkId,
+                           action => action.MapFrom(source => source.UserId))
+                .ForMember(vm=>vm.
                 .ReverseMap();
             CreateMap<UpdatePostViewModel, Post>()
                 .ReverseMap();

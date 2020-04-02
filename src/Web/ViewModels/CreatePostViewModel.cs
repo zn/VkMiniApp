@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace Web.ViewModels
 {
     public class CreatePostViewModel
     {
-        public int AuthorVkId { get; set; }
+        public int UserId { get; set; }
 
         [MaxLength(4000)]
         public string Content { get; set; }
-        public bool IsAnonymous { get; set; }
         public DateTime PublishDate => DateTime.Now;
-        // TODO: attachments
+        public List<IFormFile> Attachments { get; set; }
+        public bool IsAnonymous { get; set; }
     }
 }

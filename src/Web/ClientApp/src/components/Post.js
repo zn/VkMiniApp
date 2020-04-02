@@ -15,13 +15,17 @@ class Post extends Component {
 		currentDate.setSeconds(0);
 
 		const msInDay = 8.64e+7; // 8.64e+7 is miliseconds in day
-		if(currentDate - givenDate < msInDay){ 
+		if(currentDate - givenDate < msInDay && currentDate.getDate() === givenDate.getDate()){ 
 			return `сегодня в ${timeString}`;
 		}
 		else if(currentDate - givenDate < msInDay*2){
 			return `вчера в ${timeString}`;
 		}
-		return `${givenDate.toLocaleDateString()} в ${timeString}`;
+		return `${givenDate.toLocaleString('ru', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})} в ${timeString}`;
     }
 
     render() {

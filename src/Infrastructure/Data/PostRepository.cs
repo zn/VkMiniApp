@@ -1,4 +1,5 @@
-﻿using ApplicationCore.Entities;
+﻿using ApplicationCore.Constants;
+using ApplicationCore.Entities;
 using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Specifications;
@@ -21,19 +22,16 @@ namespace Infrastructure.Data
         }
         public async Task<Post> GetById(int id)
         {
-            return await context.Posts.SingleOrDefaultAsync(p => p.Id == id) 
+            return await context.Posts.Include(p=>p.Author)
+                                    .Include(p=>p.Attachments)
+                                    .SingleOrDefaultAsync(p => p.Id == id) 
                 ?? throw new NotFoundException(id);
         }
 
-        public async Task<IReadOnlyList<Post>> GetAll()
+        public async Task<IReadOnlyList<Post>> GetPostsForPage(int page)
         {
-            return await SpecificationEvaluator<Post>.GetQuery(context.Posts.AsQueryable(), new FeedSpecification())
-                            .AsNoTracking()
-                            .ToListAsync();
-        }
+            var spec = new FeedSpecification((page - 1) * FeedConstants.POSTS_ON_PAGE, FeedConstants.POSTS_ON_PAGE);
 
-        public async Task<IReadOnlyList<Post>> GetAll(ISpecification<Post> spec)
-        {
             return await SpecificationEvaluator<Post>.GetQuery(context.Posts.AsQueryable(), spec)
                             .AsNoTracking()
                             .ToListAsync();
@@ -41,7 +39,18 @@ namespace Infrastructure.Data
 
         public async Task<IReadOnlyList<Post>> GetPostsByAuthor(int id)
         {
-            return null;
+            return await context.Posts.Where(p => p.AuthorVkId == id)
+                                      .AsNoTracking()
+                                      .ToListAsync();
+        }
+
+        public async Task AddAttachments(int id, IEnumerable<string> urls)
+        {
+            foreach(var url in urls)
+            {
+                context.Add(new Attachment { PostId = id, Url = url });
+            }
+            await context.SaveChangesAsync();
         }
 
         public async Task<Post> Create(Post post)

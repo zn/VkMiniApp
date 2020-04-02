@@ -9,9 +9,9 @@ namespace ApplicationCore.Interfaces
     public interface IPostRepository
     {
         Task<Post> GetById(int id);
-        Task<IReadOnlyList<Post>> GetAll();
-        Task<IReadOnlyList<Post>> GetAll(ISpecification<Post> spec);
+        Task<IReadOnlyList<Post>> GetPostsForPage(int page);
         Task<IReadOnlyList<Post>> GetPostsByAuthor(int id);
+        Task AddAttachments(int id, IEnumerable<string> urls);
         Task<Post> Create(Post post);
         Task<Post> Update(Post post);
         Task Delete(Post post);

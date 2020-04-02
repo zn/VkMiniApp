@@ -18,6 +18,8 @@ namespace Infrastructure.Data.Config
             builder.HasOne(p => p.Author)
                 .WithMany(a => a.Posts)
                 .HasForeignKey(p => p.AuthorVkId);
+
+            builder.HasMany(p => p.Attachments);
         }
     }
 }

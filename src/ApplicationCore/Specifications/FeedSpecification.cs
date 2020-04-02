@@ -9,12 +9,6 @@ namespace ApplicationCore.Specifications
 {
     public class FeedSpecification : ISpecification<Post>
     {
-        // By default, there are 10 items in feed
-        public FeedSpecification()
-            : this(0, 10)
-        {        
-        }
-
         public FeedSpecification(int skip, int take)
         {
             Take = take;
@@ -28,12 +22,14 @@ namespace ApplicationCore.Specifications
             post => post.Author
         };
 
-        public Expression<Func<Post, bool>> OrderBy => null;
+        public Expression<Func<Post, object>> OrderBy => null;
+        public Expression<Func<Post, object>> OrderByDescending => (p => p.PublishDate);
 
         public int Take { get; }
 
         public int Skip { get; }
 
         public bool IsPagingEnabled => true;
+
     }
 }

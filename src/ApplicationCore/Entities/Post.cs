@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ApplicationCore.Entities
 {
@@ -11,9 +12,11 @@ namespace ApplicationCore.Entities
         public bool IsEdited { get; set; }
         public bool IsDeleted { get; set; }
 
+
         public int AuthorVkId { get; set; }
         public User Author { get; set; }
-        // attachments
+        public ICollection<Attachment> Attachments { get; set; }
+
         // comments
     }
 }

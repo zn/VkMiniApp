@@ -11,6 +11,7 @@ using Infrastructure;
 using ApplicationCore.Interfaces;
 using Infrastructure.Data;
 using Web.Filters;
+using Web.Config;
 
 namespace Web
 {
@@ -38,6 +39,8 @@ namespace Web
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddAutoMapper(typeof(Startup));
+
+            services.Configure<AttachmentsConfig>(Configuration.GetSection("Attachments"));
 
             services.AddDbContext(Configuration.GetConnectionString("DefaultConnection"));
 
