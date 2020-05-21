@@ -1,9 +1,5 @@
 ﻿using ApplicationCore.Entities;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Web.ViewModels;
 
 namespace Web.Mappings
@@ -15,7 +11,7 @@ namespace Web.Mappings
             CreateMap<CreatePostViewModel, Post>()
                 .ForMember(vm => vm.AuthorVkId,
                            action => action.MapFrom(source => source.UserId))
-                .ForMember(vm=>vm.
+                .ForMember(p => p.Attachments, opts => opts.Ignore())
                 .ReverseMap();
             CreateMap<UpdatePostViewModel, Post>()
                 .ReverseMap();

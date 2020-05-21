@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { CardGrid, Card, Avatar, Cell, Div } from '@vkontakte/vkui';
+import { CardGrid, Card, Avatar, Cell, Div, Gallery } from '@vkontakte/vkui';
 
 class Post extends Component {
 
@@ -39,7 +39,21 @@ class Post extends Component {
 					</Cell>
 					<Div>
 						{post.content}
-					</Div>
+                    </Div>
+                    <Div>
+                        {post.attachments.length !== 0 &&
+                            <Gallery
+                                slideWidth="90%"
+                                style={{ height:"max-content" }}
+                                bullets="dark">
+                                {post.attachments.map(att =>
+                                    <div key={att.url}>
+                                        <img src={att.url} alt="img here" style={{width:"100%"}} />
+                                    </div>
+                                )}
+                            </Gallery>
+                        }
+                    </Div>
 				</Card>
 			</CardGrid>
         )

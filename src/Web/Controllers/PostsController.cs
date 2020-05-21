@@ -1,15 +1,12 @@
 ﻿using ApplicationCore.Entities;
-using ApplicationCore.Exceptions;
 using ApplicationCore.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Web.Config;
 using Web.Filters;
@@ -92,28 +89,24 @@ namespace Web.Controllers
         private List<string> saveFiles(List<IFormFile> files)
         {
             List<string> paths = new List<string>(files.Count);
-            Task[] tasks = new Task[files.Count];
-
-            if (!Directory.Exists(config.Directory))
-                Directory.CreateDirectory(config.Directory);
-
-            for (int i = 0; i < files.Count; i++)
+            List<Task> tasks = new List<Task>(files.Count);
+            
+            foreach (var file in files)
             {
                 var task = Task.Run(() =>
                 {
-                    IFormFile file = files[i];
                     string filename = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                     string pathToFile = Path.Combine(config.Directory, filename);
-                    using (var fileStream = System.IO.File.Create(pathToFile))
+                    using (var fileStream = System.IO.File.Create(Path.Combine("wwwroot", pathToFile)))
                     {
                         file.CopyTo(fileStream);
                     }
                     paths.Add(pathToFile);
                 });
-                tasks[i] = task;
+                tasks.Add(task);
             }
 
-            Task.WaitAll(tasks);
+            Task.WaitAll(tasks.ToArray());
             return paths;
         }
     }

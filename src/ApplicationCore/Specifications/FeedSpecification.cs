@@ -19,7 +19,8 @@ namespace ApplicationCore.Specifications
 
         public List<Expression<Func<Post, object>>> Includes { get; } = new List<Expression<Func<Post, object>>>
         {
-            post => post.Author
+            post => post.Author,
+            post => post.Attachments
         };
 
         public Expression<Func<Post, object>> OrderBy => null;
